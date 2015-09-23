@@ -2,7 +2,7 @@ require 'csv'
 require 'mysql'
 
 
-file_name = "201506_GastosDiretos.csv"
+file_name = ARGV[0]
 file_size = `wc -l #{file_name}`.to_f
 
 
@@ -13,9 +13,6 @@ def create_tables(con)
         public_agencies(id VARCHAR(12) PRIMARY KEY, name VARCHAR(50), \
         superior_public_agency_id VARCHAR(12), views_amount INT, CONSTRAINT superior_public_agencies_public_agencies \
 		FOREIGN KEY(superior_public_agency_id) REFERENCES superior_public_agencies(id))")
-	con.query("CREATE TABLE IF NOT EXISTS \
-        budgets(id INT PRIMARY KEY AUTO_INCREMENT, year YEAR(4), value DECIMAL(13,2), public_agency_id VARCHAR(12), \
-        CONSTRAINT public_agencies_budgets FOREIGN KEY(public_agency_id) REFERENCES public_agencies(id))")
 	con.query("CREATE TABLE IF NOT EXISTS \
         programs(id VARCHAR(12) PRIMARY KEY, name VARCHAR(100), description VARCHAR(100), \
         public_agency_id VARCHAR(12), CONSTRAINT public_agencies_programs \
@@ -36,7 +33,7 @@ end
 
 
 begin
-    con = Mysql.new 'localhost', 'root', 'root', 'aonde_dev'    
+    con = Mysql.new 'localhost', 'root', 'root', 'aonde_parser'    
     create_tables(con)
 
     count = 0
