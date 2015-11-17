@@ -30,6 +30,13 @@ def create_tables(con)
 		CONSTRAINT functions_expenses FOREIGN KEY(function_id) REFERENCES functions(id))")
 end
 
+def create_preprocess_data_table(con)
+	con.query("CREATE TABLE IF NOT EXISTS \
+		public_agency_graph(id_public_agency INTEGER(11), year INTEGER(4), value NUMERIC (13,2), \
+			CONSTRAINT public_agency_graph_PK PRIMARY KEY (id_public_agency, year), \
+			CONSTRAINT public_agency_graph_public_agencies FOREIGN KEY (id_public_agency) REFERENCES public_agencies(id))")
+end
+
 
 begin
     con = Mysql.new 'localhost', 'root', 'root', 'aonde_parser'    
@@ -48,10 +55,12 @@ begin
 		con.query("INSERT IGNORE INTO expenses(public_agency_id, document_number, value, payment_date, program_id, function_id, type_expense_id, company_id) \
 			VALUES(\"#{row["Código Órgão"]}\", \"#{row["Número Documento"]}\", \"#{row["Valor"]}\", STR_TO_DATE('#{row["Data Pagamento"]}', '%d/%m/%Y'), \"#{row["Código Programa"]}\", \"#{row["Código Função"]}\", \"#{row["Código Elemento Despesa"]}\", \"#{row["Código Favorecido"]}\")")
 	
-	count = count+1
-	system "clear"
-	puts "#{((count/file_size)*100).round(2)}%"
+		count = count+1
+		system "clear"
+		puts "#{((count/file_size)*100).round(2)}%"
 	end
+
+	create_preprocess_data_table(con)
 
 rescue Mysql::Error => e
     puts e.errno
