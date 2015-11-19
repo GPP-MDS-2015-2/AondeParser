@@ -35,6 +35,11 @@ def create_preprocess_data_table(con)
 		public_agency_graph(id_public_agency INTEGER(11), year INTEGER(4), value NUMERIC (13,2), \
 			CONSTRAINT public_agency_graph_PK PRIMARY KEY (id_public_agency, year), \
 			CONSTRAINT public_agency_graph_public_agencies FOREIGN KEY (id_public_agency) REFERENCES public_agencies(id))")
+
+	con.query("INSERT INTO public_agency_graph \
+		SELECT public_agency_id, EXTRACT(YEAR FROM payment_date), SUM(value) \
+		FROM expenses \
+		GROUP BY public_agency_id, EXTRACT(YEAR FROM payment_date)")
 end
 
 
