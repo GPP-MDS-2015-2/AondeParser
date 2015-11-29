@@ -16,5 +16,10 @@ module DBHelper
         INTEGER(11), year INTEGER(4), value NUMERIC (13,2), \
         CONSTRAINT public_agency_graph_PK PRIMARY KEY (id_public_agency, year), \
         CONSTRAINT public_agency_graph_public_agencies FOREIGN KEY (id_public_agency) REFERENCES public_agencies(id))")
+
+    con.execute("CREATE TABLE IF NOT EXISTS function_graph(function_id INTEGER(11), description \
+        VARCHAR(256), year INTEGER(4), value NUMERIC (13,2), \
+        CONSTRAINT function_graph_PK PRIMARY KEY (function_id, year), \
+        CONSTRAINT function_graph_functions FOREIGN KEY (function_id) REFERENCES functions(id))")
   end
 end
