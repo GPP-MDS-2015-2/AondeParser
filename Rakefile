@@ -30,28 +30,31 @@ namespace :data do
       Parser::parse(con, csv_file)
 
       sql_file = csv_file.gsub(".csv", ".sql")
-      Rake::Task['data:dump'].invoke(sql_file)
-      Rake::Task['data:import'].invoke(args[:dest_env], sql_file)
-      Rake::Task['data:preprocess'].invoke(args[:dest_env])
-
+      Rake::Task['data:dump'].execute :file => sql_file
+      Rake::Task['data:import'].execute :env => args[:dest_env], :file => sql_file
+      Rake::Task['data:preprocess'].execute :env => (args[:dest_env])
       current_file = current_file + 1
     end
   end
 
   task :dump, [:file] do |t, args|
     db_name = conf['parser']["database"]
+    user = conf['parser']['username']
+    password = conf['parser']['password']
     dump_file = args[:file]
-    `mysqldump --no-create-info --replace --complete-insert -u root #{db_name} > #{dump_file}`
+    p "Dumping on: "+dump_file 
+    `mysqldump --no-create-info --replace --complete-insert -u #{user} #{db_name} -p#{password} > #{dump_file}`
   end
 
   task :import, [:env, :file] do |t, args|
     user = conf[args[:env]]['username']
     password = conf[args[:env]]['password']
     database = conf[args[:env]]['database']
+    p "Importing: "+args[:file]
     `mysql -u#{user} -p#{password} #{database} < #{args[:file]}`
   end
 
-  task :preprocess, [:env, :file] do |t, args|
+  task :preprocess, :env do |t, args|
     Rails.env = args[:env]
     ActiveRecord::Base.establish_connection(conf[args[:env]])
     con = ActiveRecord::Base.connection

@@ -12,12 +12,10 @@ module Parser
     CSV.foreach(csv_file, encoding: "iso-8859-1:utf-8",
         headers: true, col_sep: "\t", quote_char: "|") do |row|
 
-      DBHelper::insert_row(con, row) if row["Código Favorecido"] =~ /\A[-+]?[0-9]*\.?[0-9]+\Z/
+      DBHelper::insert_row(con, row) if row["Código Favorecido"] =~ /\A[0-9]*+\Z/
 
       count = count+1
-      system "clear"
-
-      puts "#{((count/file_size)*100).round(2)}%"
+      print "\r#{((count/file_size)*100).round(2)}% processed"
     end
   end
 end
